@@ -35,7 +35,8 @@ nav a:hover {
 }
 
 section {
-  height: 100vh; /* Ensure section fills the viewport */
+  height: 100vh;
+  /* Ensure section fills the viewport */
   padding: 5rem 2rem;
   border-bottom: 1px solid #ddd;
 }

@@ -8,6 +8,9 @@ scrollToTopButton.id = 'scroll-to-top';
 scrollToTopButton.textContent = 'Top';
 document.body.appendChild(scrollToTopButton);
 
+// Flag to prevent unnecessary operations during smooth scrolling
+let isScrolling = false;
+
 /**
  * Build the navigation dynamically based on sections
  */
@@ -20,7 +23,7 @@ const buildNavigation = () => {
         const navItem = document.createElement('li');
         const navLink = document.createElement('a');
 
-        // Set attributes and text for the navigation link
+        // Set attributes and text for the navigation link using data-section-id
         navLink.href = `#${section.id}`;
         navLink.textContent = section.dataset.nav;
         navLink.classList.add('menu__link');
@@ -38,16 +41,20 @@ const buildNavigation = () => {
  * Add 'active' class to the section in the viewport and its navigation link
  */
 const setActiveSection = () => {
+    if (isScrolling) return; // Prevent operations during smooth scrolling
+
     sections.forEach(section => {
         const bounding = section.getBoundingClientRect();
 
         // Check if the section is in the viewport
-        if (bounding.top >= 0 && bounding.top <= window.innerHeight / 2) {
-            section.classList.add('active');
+        if (bounding.top >= 0 && bounding.top <= window.innerHeight / 1.5) {
+            if (!section.classList.contains('active')) {
+                section.classList.add('active');
+            }
 
             // Highlight the corresponding navigation link
             const navLink = navBar.querySelector(`a[href="#${section.id}"]`);
-            if (navLink) {
+            if (navLink && !navLink.classList.contains('active')) {
                 navLink.classList.add('active');
             }
         } else {
@@ -65,14 +72,21 @@ const setActiveSection = () => {
 /**
  * Enable smooth scrolling when clicking navigation links
  */
+
 const enableSmoothScrolling = () => {
     navBar.addEventListener('click', event => {
         event.preventDefault();
 
         // Check if the clicked target is a link
         if (event.target.nodeName === 'A') {
+            isScrolling = true; // Prevent `setActiveSection` from triggering during scroll
             const targetSection = document.querySelector(event.target.getAttribute('href'));
             targetSection.scrollIntoView({ behavior: 'smooth' });
+
+            // Allow `setActiveSection` after scrolling is complete
+            setTimeout(() => {
+                isScrolling = false;
+            }, 500);
         }
     });
 };
@@ -87,7 +101,7 @@ const handleNavBarVisibility = () => {
     clearTimeout(scrollTimeout);
     scrollTimeout = setTimeout(() => {
         navBar.style.display = 'none';
-    }, 2000);
+    }, 4000);
 };
 
 /**
